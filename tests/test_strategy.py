@@ -10,7 +10,7 @@ Tests should verify:
 import numpy as np
 import pandas as pd
 import pytest
-from finm_python.hw5 import VolatilityBreakoutStrategy
+from backtester.strategy import VolatilityBreakoutStrategy
 
 
 class TestSignalGeneration:

@@ -12,9 +12,9 @@ import pandas as pd
 import numpy as np
 import pytest
 from unittest.mock import MagicMock, Mock
-from finm_python.hw5 import Backtester
-from finm_python.hw5 import Broker
-from finm_python.hw5 import VolatilityBreakoutStrategy
+from backtester.engine import Backtester
+from backtester.broker import Broker
+from backtester.strategy import VolatilityBreakoutStrategy
 
 
 class TestBasicExecution:

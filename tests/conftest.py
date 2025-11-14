@@ -6,8 +6,8 @@ This file provides reusable fixtures that can be used across all test files.
 import numpy as np
 import pandas as pd
 import pytest
-from finm_python.hw5 import VolatilityBreakoutStrategy, Broker
-
+from backtester.strategy import VolatilityBreakoutStrategy
+from backtester.broker import Broker
 
 @pytest.fixture
 def simple_prices():

@@ -8,7 +8,7 @@ Tests should verify:
 - Edge cases (zero qty, negative values)
 """
 import pytest
-from finm_python.hw5 import Broker
+from backtester.broker import Broker
 
 
 class TestBuyOrders:
