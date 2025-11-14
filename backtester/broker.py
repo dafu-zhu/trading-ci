@@ -58,8 +58,7 @@ class Broker:
             self.cash -= cost
             self.position += qty
         elif side == "SELL":
-            if self.position < qty:
-                raise ValueError("Insufficient shares")
+            # allow short selling
             self.cash += qty * price
             self.position -= qty
         else:

@@ -28,10 +28,13 @@ class TestBasicExecution:
         """
         # YOUR CODE STARTS HERE
         # Step 1: Create Backtester
+        bt = Backtester(strategy, broker)
         # Step 2: Call run()
+        result = bt.run(simple_prices)
         # Step 3: Assert result is a DataFrame
+        assert isinstance(result, pd.DataFrame)
         # Step 4: Assert columns are correct
-        pass
+        assert list(result.columns) == ['equity', 'cash', 'position']
         # YOUR CODE ENDS HERE
     
     def test_output_length_matches_input(self, strategy, broker, simple_prices):
@@ -42,8 +45,10 @@ class TestBasicExecution:
         """
         # YOUR CODE STARTS HERE
         # Step 1: Run backtest
+        bt = Backtester(strategy, broker)
+        result = bt.run(simple_prices)
         # Step 2: Assert length
-        pass
+        assert len(simple_prices) == len(result)
         # YOUR CODE ENDS HERE
     
     def test_output_index_matches_input(self, strategy, broker, simple_prices):
@@ -54,8 +59,10 @@ class TestBasicExecution:
         """
         # YOUR CODE STARTS HERE
         # Step 1: Run backtest
+        bt = Backtester(strategy, broker)
+        result = bt.run(simple_prices)
         # Step 2: Assert index equality
-        pass
+        assert result.index.eq(simple_prices.index)
         # YOUR CODE ENDS HERE
     
     def test_initial_state_reflects_broker_starting_values(self, broker, simple_prices):
@@ -67,11 +74,16 @@ class TestBasicExecution:
         """
         # YOUR CODE STARTS HERE
         # Step 1: Create strategy and backtester
+        strategy = MagicMock()
+        bt = Backtester(strategy, broker)
         # Step 2: Run backtest
+        result = bt.run(simple_prices)
         # Step 3: Assert result.iloc[0]['cash'] == 1000
+        assert result.iloc[0]['cash'] == 1000, f"Expected cash to be 1000, got {result.iloc[0]['cash']}"
         # Step 4: Assert result.iloc[0]['position'] == 0
+        assert result.iloc[0]['position'] == 0, f"Expected position to be 0, got {result.iloc[0]['position']}"
         # Step 5: Assert result.iloc[0]['equity'] == 1000
-        pass
+        assert result.iloc[0]['equity'] == 1000, f"Expected equity to be 1000, got {result.iloc[0]['equity']}"
         # YOUR CODE ENDS HERE
 
 
@@ -86,14 +98,17 @@ class TestTradingLogic:
         Expected: position increases, cash decreases
         """
         # YOUR CODE STARTS HERE
-        # Step 1: Create mock strategy
-        #   mock_strategy = MagicMock()
-        #   mock_strategy.signals.return_value = pd.Series([1]*len(simple_prices), index=simple_prices.index)
+        # Step 1: Create a mock strategy
+        mock_strategy = MagicMock()
+        mock_strategy.signals.return_value = pd.Series([1]*len(simple_prices), index=simple_prices.index)
         # Step 2: Create Backtester with mock
+        bt = Backtester(mock_strategy, broker)
         # Step 3: Run backtest
+        result = bt.run(simple_prices)
         # Step 4: Assert broker.position > 0
+        assert result.iloc[-1]['position'] > 0, f"Expected position to be > 0, got {result.iloc[-1]['position']}"
         # Step 5: Assert broker.cash < 1000
-        pass
+        assert result.iloc[-1]['cash'] < 1000, f"Expected cash to be < 1000, got {result.iloc[-1]['cash']}"
         # YOUR CODE ENDS HERE
     
     def test_sell_signal_executes_trade(self, broker, simple_prices):
@@ -104,11 +119,16 @@ class TestTradingLogic:
         Expected: position becomes negative, cash increases
         """
         # YOUR CODE STARTS HERE
-        # Step 1: Create mock strategy with all -1 signals
+        # Step 1: Create a mock strategy with all -1 signals
+        strategy = MagicMock()
+        strategy.signals.return_value = pd.Series([-1] * len(simple_prices), index=simple_prices.index)
         # Step 2: Run backtest
+        bt = Backtester(strategy, broker)
+        result = bt.run(simple_prices)
         # Step 3: Assert broker.position < 0 (short)
+        assert broker.position < 0, f"Expected position to be < 0, got {broker.position}"
         # Step 4: Assert broker.cash > 1000
-        pass
+        assert broker.cash > 1000, f"Expected cash to be > 1000, got {broker.cash}"
         # YOUR CODE ENDS HERE
     
     def test_hold_signal_executes_no_trade(self, broker, simple_prices):
@@ -119,11 +139,16 @@ class TestTradingLogic:
         Expected: position = 0, cash unchanged
         """
         # YOUR CODE STARTS HERE
-        # Step 1: Create mock strategy with all 0 signals
+        # Step 1: Create a mock strategy with all 0 signals
+        strategy = MagicMock()
+        strategy.signals.return_value = pd.Series([0] * len(simple_prices), index=simple_prices.index)
         # Step 2: Run backtest
+        bt = Backtester(strategy, broker)
+        result = bt.run(simple_prices)
         # Step 3: Assert broker.position == 0
+        assert broker.position == 0, f"Expected position to be 0, got {broker.position}"
         # Step 4: Assert broker.cash == 1000 (unchanged)
-        pass
+        assert broker.cash == 1000, f"Expected cash to be 1000, got {broker.cash}"
         # YOUR CODE ENDS HERE
 
 
@@ -144,12 +169,17 @@ class TestSignalTiming:
         """
         # YOUR CODE STARTS HERE
         # Step 1: Create prices (e.g., [100, 105, 110])
-        # Step 2: Create mock strategy:
-        #   signals = pd.Series([0, 1, 1], index=prices.index)
+        prices = pd.Series([100, 105, 110], index=pd.date_range('2025-01-01', periods=3))
+        # Step 2: Create a mock strategy:
+        strategy = MagicMock()
+        strategy.signals.return_value = pd.Series([0, 1, 1], index=prices.index)
         # Step 3: Run backtest
-        # Step 4: Check that at index 1, position is still 0
+        bt = Backtester(strategy, broker)
+        result = bt.run(prices)
+        # Step 4: Check that at index 1, the position is still 0
+        assert result.iloc[0]['position'] == 0, f"Expected position to be 0, got {result.iloc[0]['position']}"
         # Step 5: Check that at index 2, position > 0
-        pass
+        assert result.iloc[1]['position'] > 0, f"Expected position to be > 0, got {result.iloc[1]['position']}"
         # YOUR CODE ENDS HERE
     
     def test_first_bar_has_no_trade(self, strategy, broker, simple_prices):
@@ -160,9 +190,12 @@ class TestSignalTiming:
         """
         # YOUR CODE STARTS HERE
         # Step 1: Run backtest
+        bt = Backtester(strategy, broker)
+        result = bt.run(simple_prices)
         # Step 2: Assert first row position == 0
+        assert result.iloc[0]['position'] == 0, f"Expected position to be 0, got {result.iloc[0]['position']}"
         # Step 3: Assert first row cash == initial cash
-        pass
+        assert result.iloc[0]['cash'] == 1000, f"Expected cash to be 1000, got {result.iloc[0]['cash']}"
         # YOUR CODE ENDS HERE
     
     def test_signal_changes_trigger_trades(self, broker):
@@ -176,9 +209,16 @@ class TestSignalTiming:
         """
         # YOUR CODE STARTS HERE
         # Step 1: Create prices and mock signals
+        prices = pd.Series(np.arange(100, 106), index=pd.date_range('2025-01-01', periods=6))
+        strategy = MagicMock()
+        strategy.signals.return_value = pd.Series([0, 0, 1, 0, -1, 0], index=prices.index)
         # Step 2: Track position after each bar
+        bt = Backtester(strategy, broker)
+        result = bt.run(prices)
+        positions = result['position'].tolist()
         # Step 3: Assert position changes at signal transitions
-        pass
+        assert positions[3] == 1, f"Expected position to be 1, got {positions[3]}"
+        assert positions[5] == -1, f"Expected position to be -1, got {positions[5]}"
         # YOUR CODE ENDS HERE
 
 

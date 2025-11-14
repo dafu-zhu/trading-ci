@@ -64,7 +64,7 @@ class Backtester:
         #   - Store results
         # Step 4: Return as DataFrame
         signals = self.strategy.signals(prices)
-        equity = [self.broker.cash + self.broker.position * prices[0], ]
+        equity = [self.broker.cash + self.broker.position * prices.iloc[0], ]
         cash = [self.broker.cash,]
         position = [self.broker.position,]
         for i in range(1, len(prices)):
@@ -76,11 +76,11 @@ class Backtester:
             if qty != 0:
                 side = "BUY" if qty > 0 else "SELL"
                 # execute trade
-                self.broker.market_order(side, abs_qty, prices[i])
+                self.broker.market_order(side, abs_qty, prices.iloc[i])
 
             cash.append(self.broker.cash)
             position.append(self.broker.position)
-            equity.append(cash[-1] + position[-1] * prices[i])
+            equity.append(cash[-1] + position[-1] * prices.iloc[i])
 
         result = pd.DataFrame({
             'equity': equity,
