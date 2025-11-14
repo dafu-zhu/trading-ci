@@ -62,7 +62,7 @@ class TestBasicExecution:
         bt = Backtester(strategy, broker)
         result = bt.run(simple_prices)
         # Step 2: Assert index equality
-        assert result.index.eq(simple_prices.index)
+        assert result.index.equals(simple_prices.index), f"Expected index to match, got {result.index}"
         # YOUR CODE ENDS HERE
     
     def test_initial_state_reflects_broker_starting_values(self, broker, simple_prices):
@@ -75,6 +75,7 @@ class TestBasicExecution:
         # YOUR CODE STARTS HERE
         # Step 1: Create strategy and backtester
         strategy = MagicMock()
+        strategy.signals.return_value = pd.Series([0]*len(simple_prices), index=simple_prices.index)
         bt = Backtester(strategy, broker)
         # Step 2: Run backtest
         result = bt.run(simple_prices)
@@ -172,14 +173,14 @@ class TestSignalTiming:
         prices = pd.Series([100, 105, 110], index=pd.date_range('2025-01-01', periods=3))
         # Step 2: Create a mock strategy:
         strategy = MagicMock()
-        strategy.signals.return_value = pd.Series([0, 1, 1], index=prices.index)
+        strategy.signals.return_value = pd.Series([0, 1, 0], index=prices.index)
         # Step 3: Run backtest
         bt = Backtester(strategy, broker)
         result = bt.run(prices)
         # Step 4: Check that at index 1, the position is still 0
-        assert result.iloc[0]['position'] == 0, f"Expected position to be 0, got {result.iloc[0]['position']}"
+        assert result.iloc[1]['position'] == 0, f"Expected position to be 0, got {result.iloc[0]['position']}"
         # Step 5: Check that at index 2, position > 0
-        assert result.iloc[1]['position'] > 0, f"Expected position to be > 0, got {result.iloc[1]['position']}"
+        assert result.iloc[2]['position'] > 0, f"Expected position to be > 0, got {result.iloc[1]['position']}"
         # YOUR CODE ENDS HERE
     
     def test_first_bar_has_no_trade(self, strategy, broker, simple_prices):
