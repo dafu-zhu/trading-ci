@@ -109,6 +109,10 @@ The test suite is designed to:
 - ✅ Be fully deterministic (seeded randomness)
 - ✅ Work identically locally and in CI
 
+![report](img/report.png)
+
+![actions](img/actions.png)
+
 ## 📈 Strategy Details
 
 **VolatilityBreakoutStrategy**:
